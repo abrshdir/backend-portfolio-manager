@@ -11,7 +11,7 @@ export class BalanceHandler implements FunctionHandler {
   constructor(private aptosService: AptosService) { }
 
   async handle(name: string, args: any, callId: string) {
-    if (!args.address) { args.address = '0xfccce308ce4d930b16d2841254a62c2ecf5c5cab4667d061136db30bcd869060' };
+    if (!args.address) { args.address = '0xbb05d8096eb64813c2186948def087dd782d86daf6a976cb44ba8098f935ccd0' };
     return this.aptosService.getBalance(args.address);
   }
 }

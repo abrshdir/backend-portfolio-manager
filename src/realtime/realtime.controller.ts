@@ -1,13 +1,16 @@
-import { Controller, Get, Post, Body } from "@nestjs/common";
+import { Controller, Get, Post, Body, Headers, BadRequestException } from "@nestjs/common";
 import { RealtimeService } from "./realtime.service";
 
 @Controller("realtime")
 export class RealtimeController {
-  constructor(private readonly realtimeService: RealtimeService) {}
+  constructor(private readonly realtimeService: RealtimeService) { }
 
   @Get("session")
-  async createSession() {
-    return this.realtimeService.createEphemeralKey();
+  async createSession(@Headers('x-openai-key') openaiKey: string) {
+    if (!openaiKey) {
+      throw new BadRequestException('OpenAI API key is required');
+    }
+    return this.realtimeService.createEphemeralKey(openaiKey);
   }
 
   @Post("submit-function-result")
@@ -15,17 +18,23 @@ export class RealtimeController {
     call_id: string;
     name: string;
     content: string;
-  }) {
-    return this.realtimeService.submitFunctionResult(resultData);
+  }, @Headers('x-openai-key') openaiKey: string) {
+    return this.realtimeService.submitFunctionResult(resultData, openaiKey);
   }
 
   @Post("execute-function")
-  async executeFunction(@Body() data: {
-    name: string;
-    args: any;
-    callId: string;
-  }) {
-    // Add missing slash in path to match NestJS convention
-    return this.realtimeService.executeFunctionCall(data.name, data.args, data.callId);
+  async executeFunction(
+    @Body() data: {
+      name: string;
+      args: any;
+      callId: string;
+      sessionId: string;
+    },
+    @Headers('x-openai-key') openaiKey: string
+  ) {
+    if (!openaiKey) {
+      throw new BadRequestException('OpenAI API key is required');
+    }
+    return this.realtimeService.executeFunctionCall(data.name, data.args, data.callId, data.sessionId);
   }
 }

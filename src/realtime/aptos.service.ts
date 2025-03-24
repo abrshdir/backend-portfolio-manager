@@ -41,7 +41,7 @@ export class AptosService {
     // const result = agent.getTokenPrice("to_address", 1.0)
   }
   async getBalance(
-    address: '0xfccce308ce4d930b16d2841254a62c2ecf5c5cab4667d061136db30bcd869060',
+    address: '0xbb05d8096eb64813c2186948def087dd782d86daf6a976cb44ba8098f935ccd0',
     coinType: string = '0x1::aptos_coin::AptosCoin',
   ): Promise<string> {
     try {
@@ -60,9 +60,7 @@ export class AptosService {
         coinResource.data !== null
       ) {
         const coinData = coinResource.data as CoinResourceData;
-        return (coinData.coin?.value ?? '0').concat(
-          ' ' + coinType.split('::')[2],
-        );
+        return coinData.coin?.value
       }
 
       return '0'; // Return '0' if the resource is not found or does not match the expected structure
