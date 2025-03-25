@@ -1,6 +1,7 @@
 import { ar } from '@aptos-labs/ts-sdk/dist/common/accountAddress-jrha_M3l';
 import { AptosService } from './aptos.service';
 import { HttpService } from '@nestjs/axios';
+import { DemoAccountService } from '../demo-account/demo-account.service';
 
 
 export interface FunctionHandler {
@@ -8,26 +9,35 @@ export interface FunctionHandler {
 }
 
 export class BalanceHandler implements FunctionHandler {
-  constructor(private aptosService: AptosService) { }
+  constructor(
+    private aptosService: AptosService,
+  ) {}
 
-  async handle(name: string, args: any, callId: string) {
-    if (!args.address) { args.address = '0xbb05d8096eb64813c2186948def087dd782d86daf6a976cb44ba8098f935ccd0' };
-    return this.aptosService.getBalance(args.address);
+  async handle(name: string, args: any) {
+    if (!args.userId) throw new Error('User authentication required');
+    return this.aptosService.getBalance(args.userId);
   }
 }
 
 export class TransactionHandler implements FunctionHandler {
-  constructor(private aptosService: AptosService) { }
+  constructor(
+    private aptosService: AptosService,
+    private demoAccountService: DemoAccountService
+  ) {}
 
   async handle(args: any) {
-    if (!args.fromAddress || !args.toAddress || !args.amount || !args.encryptedPrivateKey) {
+    if (!args.userId || !args.toAddress || !args.amount) {
       throw new Error('Missing required transaction parameters');
     }
+    
+    // Additional validation
+    const account = await this.demoAccountService.getAccountById(args.userId);
+    if (!account) throw new Error('User account not found');
+    
     return this.aptosService.executeTransaction(
-      args.fromAddress,
+      args.userId,
       args.toAddress,
-      args.amount,
-      args.encryptedPrivateKey
+      args.amount
     );
   }
 }

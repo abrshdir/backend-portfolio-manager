@@ -7,14 +7,13 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // Enable CORS
+  app.setGlobalPrefix('api');
   app.enableCors({
-    origin: 'http://localhost:4200', // Angular app URL
+    origin: 'http://localhost:4200', // Update with your frontend port
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    credentials: true
   });
-  
+
   await app.listen(3000);
 }
 bootstrap();

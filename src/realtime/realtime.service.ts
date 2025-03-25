@@ -9,6 +9,7 @@ import {
   PriceChartHandler,
 } from './function-handlers';
 import { AptosService } from './aptos.service';
+import { DemoAccountService } from 'src/demo-account/demo-account.service';
 
 @Injectable()
 export class RealtimeService {
@@ -17,10 +18,11 @@ export class RealtimeService {
   constructor(
     private readonly httpService: HttpService,
     private readonly aptosService: AptosService,
+    private demoAccountService: DemoAccountService
   ) {
     this.functionHandlers = new Map<string, FunctionHandler>([
       ['getBalance', new BalanceHandler(aptosService)],
-      ['executeTransaction', new TransactionHandler(aptosService)],
+      ['executeTransaction', new TransactionHandler(aptosService, demoAccountService)],
       ['AptosGetTokenPriceTool', new PriceChartHandler()],
     ]);
   }

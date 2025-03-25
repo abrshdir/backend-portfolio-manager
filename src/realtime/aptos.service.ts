@@ -23,11 +23,17 @@ interface CoinResourceData {
 const APTOS_COIN = '0x1::aptos_coin::AptosCoin';
 const COIN_STORE = `0x1::coin::CoinStore<${APTOS_COIN}>`;
 
+// Add to imports
+import { DemoAccountService } from '../demo-account/demo-account.service';
+
 @Injectable()
 export class AptosService {
   private client: Aptos;
 
-  constructor(private readonly httpService: HttpService) {
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly demoAccountService: DemoAccountService
+  ) {
     const config = new AptosConfig({ network: Network.DEVNET });
     this.client = new Aptos(config);
 
@@ -41,12 +47,15 @@ export class AptosService {
     // const result = agent.getTokenPrice("to_address", 1.0)
   }
   async getBalance(
-    address: '0xbb05d8096eb64813c2186948def087dd782d86daf6a976cb44ba8098f935ccd0',
-    coinType: string = '0x1::aptos_coin::AptosCoin',
+    userId: string,
+    coinType: string = '0x1::aptos_coin::AptosCoin' // Add coinType parameter
   ): Promise<string> {
     try {
+      const account = await this.demoAccountService.getAccountById(userId);
+      if (!account) throw new Error('Account not found');
+
       const resources = await this.client.getAccountResources({
-        accountAddress: address,
+        accountAddress: account.publicAddress,
       });
       const coinResource = resources.find(
         (r) => r.type === `0x1::coin::CoinStore<${coinType}>`,
@@ -113,32 +122,32 @@ export class AptosService {
   }
 
   async executeTransaction(
-    fromAddress: string,
+    userId: string,  // Changed to use user ID
     toAddress: string,
     amount: number,
-    encryptedPrivateKey: string,
   ): Promise<Object> {
     try {
-      const privateKeyStr = EncryptionConfig.decrypt(encryptedPrivateKey);
-      const formattedPrivateKey = PrivateKey.formatPrivateKey(
-        privateKeyStr,
-        PrivateKeyVariants.Ed25519,
-      );
-      const privateKey = new Ed25519PrivateKey(formattedPrivateKey);
+      // Get account from database
+      const account = await this.demoAccountService.getAccountById(userId);
+      if (!account) throw new Error('Account not found');
 
-      const account = Account.fromPrivateKey({ privateKey });
+      // Get full Aptos account details
+      const aptosAccount = await this.demoAccountService.getAptosAccount(account.publicAddress);
+
+      // Use the stored address from database
+      const fromAddress = aptosAccount.accountAddress.toString();
 
       const transaction = await this.prepareTransaction(
-        fromAddress,
+        fromAddress,  // Now using database-stored address
         toAddress,
         amount,
-        encryptedPrivateKey,
+        account.privateKey  // Use decrypted private key from storage
       );
 
       interval(2000);
 
       const signedTxn = await this.client.signAndSubmitTransaction({
-        signer: account,
+        signer: aptosAccount,  // Changed from 'account' to use the Aptos account instance
         transaction: transaction,
       });
 

@@ -1,11 +1,25 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { RealtimeModule } from './realtime/realtime.module';
+import { HttpModule } from '@nestjs/axios';
+import { MongooseModule } from '@nestjs/mongoose';
+import { DemoAccount, DemoAccountSchema } from './demo-account/demo-account.model';
+import { DemoAccountController } from './demo-account/demo-account.controller';
+import { RealtimeController } from './realtime/realtime.controller';
+import { DemoAccountService } from './demo-account/demo-account.service';
+import { RealtimeService } from './realtime/realtime.service';
+import { AptosService } from './realtime/aptos.service';
 
 @Module({
-  imports: [RealtimeModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    HttpModule,
+    MongooseModule.forRoot('mongodb://localhost:27017/hack'),
+    MongooseModule.forFeature([{ name: DemoAccount.name, schema: DemoAccountSchema }]),
+    // Remove RealtimeModule import
+  ],
+  controllers: [DemoAccountController, RealtimeController],
+  providers: [
+    DemoAccountService,
+    RealtimeService,
+    AptosService,
+  ],
 })
 export class AppModule {}

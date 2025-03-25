@@ -2,42 +2,33 @@ export const allTools = [
     {
         "type": "function",
         "name": "getBalance",
-        "description": "Get the account balance of the user or the provided address",
+        "description": "Get the account balance of the authenticated user",
         "parameters": {
             "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string",
-                    "description": "The address provided for the balance request use 0xbb05d8096eb64813c2186948def087dd782d86daf6a976cb44ba8098f935ccd0"
-                }
-            },
+            "properties": {},
         }
     },
     {
         "type": "function",
         "name": "executeTransfer",
-        "description": "Transfer from sender address to another address",
+        "description": "Transfer APT coins from authenticated user to another address",
         "parameters": {
             "type": "object",
             "properties": {
-                "fromAddress": {
+                "userId": {
                     "type": "string",
-                    "description": "The address provided to transfer the coin from"
+                    "description": "The user's unique identifier from the session"
                 },
                 "toAddress": {
                     "type": "string",
-                    "description": "The address provided to receive the coin"
+                    "description": "The destination address for the transfer"
                 },
                 "amount": {
                     "type": "number",
-                    "description": "The amount to be transferred"
-                },
-                "encryptedPrivateKey": {
-                    "type": "string",
-                    "description": "The private key of the sender"
+                    "description": "The amount of APT coins to transfer"
                 }
             },
-            "required": ["fromAddress", "toAddress", "amount", "encryptedPrivateKey"]
+            "required": ["userId", "toAddress", "amount"]
         }
     },
     {
