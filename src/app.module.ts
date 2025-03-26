@@ -11,7 +11,7 @@ import { AptosService } from './realtime/aptos.service';
 @Module({
   imports: [
     HttpModule,
-    MongooseModule.forRoot('mongodb://localhost:27017/hack'),
+    MongooseModule.forRoot(process.env.MONGODB_URI as string),
     MongooseModule.forFeature([{ name: DemoAccount.name, schema: DemoAccountSchema }]),
     // Remove RealtimeModule import
   ],
@@ -22,4 +22,4 @@ import { AptosService } from './realtime/aptos.service';
     AptosService,
   ],
 })
-export class AppModule {}
+export class AppModule { }
